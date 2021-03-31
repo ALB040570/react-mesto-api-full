@@ -1,8 +1,13 @@
+// const jwt = localStorage.getItem('jwt');
+const BASE_URL = `${window.location.protocol}${process.env.REACT_APP_API_URL || '//localhost:3001'}`;
 const optionsForApi = {
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-16',
-  baseUrlForAuth: 'https://auth.nomoreparties.co',
+  baseUrl: BASE_URL,
+  // headers: {
+  //   Authorization: `Bearer ${jwt}`,
+  //   "Content-Type": "application/json",
+  // },
   headers: {
-    authorization: '856155f9-12e9-47dc-bda9-cdcb166629fd',
+    // authorization: '856155f9-12e9-47dc-bda9-cdcb166629fd',
     'Content-Type': 'application/json'
   },
   headersForAuth: {

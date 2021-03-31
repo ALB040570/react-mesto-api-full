@@ -1,6 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mongoose = require('mongoose');
+
+// const options = {
+//   origin: [
+//     'http://localhost:3001',
+//     'https://mesto.lb.nomoredomains.club',
+//     'https:/github.com/ALB040570',
+//   ],
+//   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+//   preflightContinue: false,
+//   optionsSuccessStatus: 204,
+//   allowedHeaders: ['Content-Type', 'origin', 'Authorization'],
+//   credentials: true,
+// };
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -15,6 +29,9 @@ const userRouter = require('./routes/users.js');
 const cardRouter = require('./routes/cards.js');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+
+// app.use('*', cors(options));
+app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -3,8 +3,7 @@ import optionsForApi from './constants.js';
 
 class Api {
   constructor(options) {
-    this._baseUrl = options.baseUrl;
-    this._baseUrlForAuth = options.baseUrlForAuth;
+    this._baseUrl  = options.baseUrl;
     this._headers = options.headers;
     this._headersForAuth = options.headersForAuth;
     this._usersMe = options.dir.usersMe;
@@ -18,9 +17,10 @@ class Api {
 
   //Отправка на сервер данных регистрации пользоваателя
   register(email, password) {
-    return fetch(this._baseUrlForAuth + this._signUp, {
+    return fetch(this._baseUrl + this._signUp, {
       method: 'POST',
       headers: this._headersForAuth,
+      
       body: JSON.stringify({email, password})
     })
     .then(this._checkResponse)
@@ -28,22 +28,31 @@ class Api {
 
   //Отправка на сервер данных для авторизации
   authorize(email, password) {
-    return fetch(this._baseUrlForAuth + this._signIn, {
+    return fetch(this._baseUrl + this._signIn, {
       method: 'POST',
       headers: this._headersForAuth,
+      
       body: JSON.stringify({email, password})
     })
     .then(this._checkResponse)
   }
+  //заполняет заголовок запроса
+  setToken(token) {
+    this._headers = {
+      ...this.headers,
+      Authorization: `Bearer ${token}`,
+    }
+  }
 
   // запрос для проверки валидности токена
   getContent(token) {
-    return fetch(this._baseUrlForAuth + this._usersMe, {
+    return fetch(this._baseUrl + this._usersMe, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-      }
+      },
+      
     })
     .then(this._checkResponse)
   }
@@ -53,6 +62,7 @@ class Api {
     return fetch(this._baseUrl + this._cards, {
       method: 'GET',
       headers: this._headers,
+      
     })
     .then(this._checkResponse)
   }
@@ -61,6 +71,7 @@ class Api {
     return fetch(this._baseUrl+this._usersMe, {
       method: 'GET',
       headers: this._headers,
+      
     })
     .then(this._checkResponse)
   }
@@ -147,5 +158,6 @@ class Api {
 
 }
 const api = new Api(optionsForApi);
+
 
 export default api;

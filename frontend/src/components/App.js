@@ -36,20 +36,33 @@ function App() {
 
 
   useEffect(()=>{
-    const cardsFromSer= api.getCards();
-    cardsFromSer
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      return
+    }
+    api.setToken(token)
+    api
+      .getCards()
       .then((cardsFromSer) => {
-        setCards(cardsFromSer);
+        console.log(cardsFromSer.data);
+        setCards(cardsFromSer.data);
+        
       })
       .catch((err) => {console.log(err);});
     },[]);
 
   useEffect(()=>{
-    const userInfoFromServer = api.getUsersInfo();
-    userInfoFromServer
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      return
+    }
+    api.setToken(token)
+    api.getUsersInfo()
     .then((userInfo) => {
+      console.log(userInfo);
       setCurrenUser(userInfo);
       })
+
     .catch((err) => {console.log(err);});
   },[]);
 
