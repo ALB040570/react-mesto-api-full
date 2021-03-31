@@ -97,7 +97,7 @@ const createUser = (req, res) => {
 };
 
 const patchProfile = (req, res) => {
-  const { name, about } = req.body;
+  const { name, about } = (req.body);
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },

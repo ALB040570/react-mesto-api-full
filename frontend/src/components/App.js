@@ -123,16 +123,13 @@ function App() {
               setLoggedIn(true);
             }
           })
-          .catch (e=>console.error(e))
+          .catch ((e)=>{console.error(e)
+            setLoggedIn(false)})
         } else {
           setLoggedIn(false);
         }
 
   },[])
-
-
-
-
 
   if (loggedIn===null) {
     return 'Загрузка...'
@@ -177,14 +174,12 @@ function App() {
   }
 
   const handleUpdateUser=(data)=> {
-    const token = localStorage.getItem('jwt');
-    if (!token) {
-      return
-    }
-    api.setToken(token);
-    console.log(data);
-    const userInfoFromForm = api.patchUsersInfo(data);
-    userInfoFromForm
+    // const token = localStorage.getItem('jwt');
+    // if (!token) {
+    //   return
+    // }
+    // api.setToken(token);
+    api.patchUsersInfo(data)
     .then((userInfo) => {
       console.log(userInfo.data);
       setCurrenUser(userInfo.data);
