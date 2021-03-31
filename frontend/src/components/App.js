@@ -27,7 +27,6 @@ function App() {
   const[selectedCard,handleCardClick]=useState(null);
   const[cards, setCards]=useState([]);
 
-
   useEffect(()=>{
     if (loggedIn) {
       history.push('/');
@@ -59,12 +58,12 @@ function App() {
     api.setToken(token)
     api.getUsersInfo()
     .then((userInfo) => {
-      console.log(userInfo);
-      setCurrenUser(userInfo);
+      console.log(userInfo.data);
+      setCurrenUser(userInfo.data);
       })
 
     .catch((err) => {console.log(err);});
-  },[]);
+  },[loggedIn]);
 
   const onSignOut =() => {
 
@@ -178,10 +177,17 @@ function App() {
   }
 
   const handleUpdateUser=(data)=> {
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      return
+    }
+    api.setToken(token);
+    console.log(data);
     const userInfoFromForm = api.patchUsersInfo(data);
     userInfoFromForm
     .then((userInfo) => {
-      setCurrenUser(userInfo);
+      console.log(userInfo.data);
+      setCurrenUser(userInfo.data);
       closeAllPopups();
       })
     .catch((err) => {console.log(err);});
