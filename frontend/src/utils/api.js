@@ -15,13 +15,13 @@ class Api {
 
   //Отправка на сервер данных регистрации пользоваателя
   register(email, password) {
+
     return fetch(this._baseUrl + this._signUp, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      
       body: JSON.stringify({email, password})
     })
     .then(this._checkResponse)
@@ -87,7 +87,6 @@ class Api {
   }
   //Редактирование профиля
   patchUsersInfo(data) {
-    
     return fetch(this._baseUrl+this._usersMe, {
       method: 'PATCH',
       headers: {
@@ -133,7 +132,7 @@ class Api {
   //функция объединяет и вызывает методы обновления/снятия лайка
   changeLikeCardStatus(cardId, isLike) {
     const method = isLike?'PUT':'DELETE';
-    return fetch(`${this._baseUrl}${this._likes}/${cardId}`, {
+    return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
       method: method,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('jwt')}`,

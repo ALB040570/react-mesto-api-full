@@ -8,7 +8,7 @@ function Login(props) {
   // Стейты, в которых содержатся значения инпутов
   const [data, setData] = useState({
     email: props.data.email,
-    password: '',
+    password:''
   });
 
    //Обработчик изменения инпута обновляет стейт
@@ -23,10 +23,6 @@ function Login(props) {
   const handleSubmit = (e) =>{
     // Запрещаем браузеру переходить по адресу формы
     e.preventDefault();
-
-    if (!data.email || !data.password){
-      return
-    }
     // Передаём значения управляемых компонентов во внешний обработчик
     props.onLogin(data.email, data.password);
   }

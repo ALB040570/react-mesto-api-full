@@ -19,7 +19,7 @@ function App() {
     });
   const history = useHistory();
   const[isInfoTooltipOpen, setInfoTooltipOpen] = useState(false);
-  const[TypeInfo, setTypeInfo] = useState(null);
+  const[typeInfo, setTypeInfo] = useState(null);
   const[currentUser, setCurrenUser]=useState({name: '', about: '', avatar: ''});
   const[isEditProfilePopupOpen,handleEditProfileClick] = useState(false);
   const[isAddPlacePopupOpen,handleAddPlaceClick] = useState(false);
@@ -43,12 +43,11 @@ function App() {
     api
       .getCards()
       .then((cardsFromSer) => {
-        console.log(cardsFromSer.data);
         setCards(cardsFromSer.data);
         
       })
       .catch((err) => {console.log(err);});
-    },[]);
+    },[loggedIn,history]);
 
   useEffect(()=>{
     const token = localStorage.getItem('jwt');
@@ -58,15 +57,13 @@ function App() {
     api.setToken(token)
     api.getUsersInfo()
     .then((userInfo) => {
-      console.log(userInfo.data);
       setCurrenUser(userInfo.data);
       })
 
     .catch((err) => {console.log(err);});
-  },[loggedIn]);
+  },[loggedIn,userData]);
 
   const onSignOut =() => {
-
     setLoggedIn(false);
     localStorage.removeItem('jwt');
   }
@@ -84,7 +81,8 @@ function App() {
         if (data.statusCode===400){
           setInfoTooltipOpen(true);
           setTypeInfo('fail');
-          throw new Error ('не передано одно из полей');
+          
+          // throw new Error ('не передано одно из полей');
         }
       })
       .catch((err) => {
@@ -96,17 +94,26 @@ function App() {
 
   const onRegister = (email, password) =>{
     api
-      .register(email, password).then((res) => {
-        if (res.statusCode !== 400) {
+      .register(email, password)
+      .then((res) => {
+        
           history.push('/sing-in');
-        }else {
-          throw new Error ('Что-то пошло не так!');
-        }
+        
         console.debug(res);
         setInfoTooltipOpen(true);
         setTypeInfo('success');
+
+        if (res.statusCode===400){
+          setInfoTooltipOpen(true);
+          setTypeInfo('fail');
+          
+          throw new Error ('не передано одно из полей');
+        }
       })
-      .catch((e) => console.log());
+      .catch((e) => {
+        setInfoTooltipOpen(true);
+        setTypeInfo('fail');
+      });
   }
   useEffect(()=>{
 
@@ -141,9 +148,11 @@ function App() {
     //  проверяем, есть ли уже лайк на этой карточке
     const isLiked = card.likes.some(i => i._id === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+    api
+    .changeLikeCardStatus(card._id, !isLiked)
+    .then((newCard) => {
     // Формируем новый массив на основе имеющегося, подставляя в него новую карточку
-    const newCards = cards.map((c) => c._id === card._id ? newCard : c);
+    const newCards = cards.map((c) => c._id === card._id ? newCard.data : c);
       // Обновляем стейт
       setCards(newCards);
     })
@@ -174,14 +183,9 @@ function App() {
   }
 
   const handleUpdateUser=(data)=> {
-    // const token = localStorage.getItem('jwt');
-    // if (!token) {
-    //   return
-    // }
-    // api.setToken(token);
-    api.patchUsersInfo(data)
+    api
+    .patchUsersInfo(data)
     .then((userInfo) => {
-      console.log(userInfo.data);
       setCurrenUser(userInfo.data);
       closeAllPopups();
       })
@@ -190,9 +194,10 @@ function App() {
   }
 
   const handleUpdateAvatar=(data)=> {
-    const avatarFromForm = api.patchAvatar(data);
-    avatarFromForm
+    api
+    .patchAvatar(data)
     .then((userInfo) => {
+      setUserData(userInfo)
       setCurrenUser(userInfo);
       closeAllPopups();
       })
@@ -201,10 +206,12 @@ function App() {
   }
 
   const handleAddPlaceSubmit=(data)=> {
-    const cardFromForm = api.postCard(data);
-    cardFromForm
-    .then((newCard) => {
-        setCards([newCard, ...cards]);
+    api
+      .postCard(data)
+      .then((newCard) => {
+        setCards([newCard.data, ...cards]);
+        history.push('/');
+        setLoggedIn(true);
         closeAllPopups();
       })
     .catch((err) => {console.log(err);});
@@ -231,6 +238,7 @@ function App() {
 
         <Route path="/sign-in">
           <Login  onLogin={onLogin}
+
           data={userData}
           />
 
@@ -268,7 +276,7 @@ function App() {
 
       <InfoTooltip
         isOpen={isInfoTooltipOpen}
-        TypeInfo={TypeInfo}
+        typeInfo={typeInfo}
         onClose={closeAllPopups}
         />
 

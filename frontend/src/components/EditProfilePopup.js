@@ -30,10 +30,6 @@ const handleSubmit = (e) =>{
       name: name,
       about: description,
     });
-    console.log( {
-      name: name,
-      about: description,
-    })
   }
 
 return(

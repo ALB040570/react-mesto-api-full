@@ -25,10 +25,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
 });
 
+const { errors } = require('celebrate');
 const userRouter = require('./routes/users.js');
 const cardRouter = require('./routes/cards.js');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
+const { validateUserBody } = require('./middlewares/validatons');
 
 // app.use('*', cors(options));
 app.use(cors());
@@ -38,7 +41,7 @@ app.use(bodyParser.json());
 
 // роуты, не требующие авторизации,
 // например, регистрация и логин
-app.post('/signup', createUser);
+app.post('/signup', validateUserBody, createUser);
 app.post('/signin', login);
 
 // авторизация
@@ -50,5 +53,12 @@ app.use('/', userRouter);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
+
+// здесь обрабатываем все ошибки
+// обработчики ошибок
+app.use(errors()); // обработчик ошибок celebrate
+
+// наш централизованный обработчик
+app.use(errorHandler);
 
 app.listen(PORT);

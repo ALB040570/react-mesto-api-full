@@ -23,10 +23,6 @@ function Register(props) {
   const handleSubmit = (e) =>{
   // Запрещаем браузеру переходить по адресу формы
   e.preventDefault();
-
-  if (!data.email || !data.password){
-    return;
-  }
   // Передаём значения управляемых компонентов во внешний обработчик
   props.onRegister(data.email, data.password);
   }
