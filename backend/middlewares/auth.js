@@ -1,3 +1,4 @@
+const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line consistent-return
@@ -19,7 +20,7 @@ module.exports = (req, res, next) => {
 
   try {
     // попытаемся верифицировать токен
-    payload = jwt.verify(token, 'some-secret-key', { expiresIn: '7d' });
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret', { expiresIn: '7d' });
   } catch (err) {
     // отправим ошибку, если не получилось
     return res
