@@ -31,7 +31,8 @@ const cardRouter = require('./routes/cards.js');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
-const { validateUserBody } = require('./middlewares/validatons');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { postSignValidate } = require('./middlewares/validations');
 
 // app.use('*', cors(options));
 app.use(cors());
@@ -39,10 +40,11 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// роуты, не требующие авторизации,
-// например, регистрация и логин
-app.post('/signup', validateUserBody, createUser);
-app.post('/signin', login);
+app.use(requestLogger); // подключаем логгер запросов
+
+// роуты, не требующие авторизации
+app.post('/signup', postSignValidate, createUser);
+app.post('/signin', postSignValidate, login);
 
 // авторизация
 app.use(auth);
@@ -54,6 +56,7 @@ app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
+app.use(errorLogger); // подключаем логгер ошибок
 // здесь обрабатываем все ошибки
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate

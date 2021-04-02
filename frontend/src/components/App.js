@@ -96,10 +96,7 @@ function App() {
     api
       .register(email, password)
       .then((res) => {
-        
-          history.push('/sing-in');
-        
-        console.debug(res);
+        history.push('/sing-in');
         setInfoTooltipOpen(true);
         setTypeInfo('success');
 
