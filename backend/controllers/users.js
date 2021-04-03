@@ -12,8 +12,7 @@ const SALT_ROUNDS = 10;
 const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    const validationError = new ValidationError('Не передан емейл или пароль');
-    next(validationError);
+    next(new ValidationError('Не передан емейл или пароль'));
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -30,8 +29,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       // ошибка аутентификации
-      const unauthorized = new Unauthorized(err.message);
-      next(unauthorized);
+      next(new Unauthorized(err.message));
     });
 };
 
@@ -49,8 +47,21 @@ const getProfile = (req, res, next) => {
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        const validationError = new ValidationError('Не валидный ID');
-        next(validationError);
+        next(new ValidationError('Не валидный ID'));
+      }
+      next(err);
+    });
+};
+
+const getProfileById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .orFail(() => {
+      throw new NotFoundError('Пользователь с таким id не найден');
+    })
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        next(new ValidationError('Не валидный ID'));
       }
       next(err);
     });
@@ -61,8 +72,7 @@ const createUser = (req, res, next) => {
     email, password, name, about, avatar,
   } = req.body;
   if (!email || !password) {
-    const validationError = new ValidationError('Не передан емейл или пароль');
-    next(validationError);
+    next(new ValidationError('Не передан емейл или пароль'));
   }
   // хешируем пароль
   bcrypt
@@ -73,11 +83,9 @@ const createUser = (req, res, next) => {
     .then(() => res.status(200).send({ message: 'Пользователь создан!' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        const validationError = new ValidationError(err.errors.email.message);
-        next(validationError);
+        next(new ValidationError(err.errors.email.message));
       } else {
-        const conflictError = new ConflictError('Такой пользователь уже существует');
-        next(conflictError);
+        next(new ConflictError('Такой пользователь уже существует'));
       }
       next(err);
     });
@@ -91,18 +99,16 @@ const patchProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-      upsert: true,
+      upsert: false,
     },
   )
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         if (err.errors.name) {
-          const validationError = new ValidationError(err.errors.name.message);
-          next(validationError);
+          next(new ValidationError(err.errors.name.message));
         } else {
-          const validationError = new ValidationError(err.errors.about.message);
-          next(validationError);
+          next(new ValidationError(err.errors.about.message));
         }
       }
       next(err);
@@ -117,14 +123,13 @@ const patchAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-      upsert: true,
+      upsert: false,
     },
   )
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        const validationError = new ValidationError(err.errors.avatar.message);
-        next(validationError);
+        next(new ValidationError(err.errors.avatar.message));
       }
       next(err);
     });
@@ -135,6 +140,7 @@ module.exports = {
   login,
   getUsers,
   getProfile,
+  getProfileById,
   patchProfile,
   patchAvatar,
 };

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "lint": "npx eslint"
+    "npx eslint": "npx eslint"
   },
   "keywords": [],
   "author": "Lazzat",

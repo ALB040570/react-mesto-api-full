@@ -1,13 +1,10 @@
-const errorHandler = (err, req, res) => {
-  // если у ошибки нет статуса, выставляем 500
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-    // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
+const errorHandler = (err, req, res, next) => {
+  if (err.status) {
+    res.status(err.statusCode).send({ message: err.message });
+    return;
+  }
+  res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+  next();
 };
+
 module.exports = errorHandler;

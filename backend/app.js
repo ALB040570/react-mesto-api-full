@@ -34,7 +34,8 @@ const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { postSignValidate } = require('./middlewares/validations');
+const { postSignUpValidate, postSignInValidate } = require('./middlewares/validations');
+// const NotFoundError = require('./errors/not-found-err');
 
 // app.use('*', cors(options));
 app.use(cors());
@@ -51,8 +52,8 @@ app.get('/crash-test', () => {
 });
 
 // роуты, не требующие авторизации
-app.post('/signup', postSignValidate, createUser);
-app.post('/signin', postSignValidate, login);
+app.post('/signup', postSignUpValidate, createUser);
+app.post('/signin', postSignInValidate, login);
 
 // авторизация
 app.use(auth);
@@ -60,8 +61,9 @@ app.use(auth);
 // роуты, которым авторизация нужна
 app.use('/', cardRouter);
 app.use('/', userRouter);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use((err, req, res, next) => {
+  next(err);
+  // next(new NotFoundError('Запрашиваемый ресурс не найден'));
 });
 
 app.use(errorLogger); // подключаем логгер ошибок

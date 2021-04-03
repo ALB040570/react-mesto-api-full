@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const ValidationError = require('../errors/validation-err');
 const NotFoundError = require('../errors/not-found-err');
+const Forbidden = require('../errors/forbidden-err');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -23,15 +24,12 @@ const postCards = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         if (err.errors.name) {
-          const validationError = new ValidationError(err.errors.name.message);
-          next(validationError);
+          next(new ValidationError(err.errors.name.message));
         } else {
           if (err.errors.link) {
-            const validationError = new ValidationError(err.errors.link.message);
-            next(validationError);
+            next(new ValidationError(err.errors.link.message));
           }
-          const validationError = new ValidationError(err.errors.createdAt.message);
-          next(validationError);
+          next(new ValidationError(err.errors.createdAt.message));
         }
       }
       next(err);
@@ -39,16 +37,20 @@ const postCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new NotFoundError('Карточка с таким id не найдена');
+  Card
+    .findOne({ _id: req.params.cardId })
+    .orFail(() => new NotFoundError('Карточка с таким id не найдена'))
+    .then((card) => {
+      if (!card.owner._id.equals(req.user._id)) {
+        next(new Forbidden('Нельзя удалить чужую карточку'));
+      } else {
+        Card.deleteOne(card)
+          .then(() => res.send({ data: card }));
+      }
     })
-    .populate(['likes', 'owner'])
-    .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        const validationError = new ValidationError('Не валидный ID');
-        next(validationError);
+        next(new ValidationError('Невалидный id карточки'));
       } else {
         next(err);
       }
@@ -76,8 +78,7 @@ const addLike = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        const validationError = new ValidationError('Не валидный ID');
-        next(validationError);
+        next(new ValidationError('Не валидный ID'));
       } else {
         next(err);
       }
@@ -104,8 +105,7 @@ const deleteLike = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        const validationError = new ValidationError('Не валидный ID');
-        next(validationError);
+        next(new ValidationError('Не валидный ID'));
       } else {
         next(err);
       }

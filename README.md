@@ -5,4 +5,5 @@
 ссылки на сайт, размещенный на Яндекс.Облаке.
 
 - Публичный IPv4:  https://178.154.208.216
-- Домен:  https://mesto.lb.nomoredomains.club/
+- Домен frontend:  https://mesto.lb.nomoredomains.club/
+- Домен backend:  https://api.mesto.lb.nomoredomains.club/
