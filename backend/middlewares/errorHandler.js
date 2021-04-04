@@ -1,9 +1,10 @@
 const errorHandler = (err, req, res, next) => {
-  if (err.status) {
+  if (err.statusCode !== 500) {
     res.status(err.statusCode).send({ message: err.message });
-    return;
+  } else {
+    res.status(500).send({ message: `На сервере произошла ошибка ups: ${err.message}` });
   }
-  res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+
   next();
 };
 
